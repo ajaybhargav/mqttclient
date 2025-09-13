@@ -43,6 +43,12 @@ typedef enum client_state {
     CLIENT_STATE_CLEAN_SESSION = 3
 }client_state_t;
 
+typedef enum reconnect_status {
+    CLIENT_CONN_FAILED = -1,
+    CLIENT_CONN_RECONNECTING = 0,
+    CLIENT_CONN_CONNECTED = 1,
+} reconnect_status_t;
+
 typedef struct mqtt_connack_data {
     uint8_t rc;
     uint8_t session_present;
@@ -64,7 +70,7 @@ typedef struct message_data {
 
 typedef void (*interceptor_handler_t)(void* client, message_data_t* msg);
 typedef void (*message_handler_t)(void* client, message_data_t* msg);
-typedef void (*reconnect_handler_t)(void* client, void* reconnect_date);
+typedef void (*reconnect_handler_t)(void* client, int status, void* reconnect_date);
 typedef void (*topiclist_hanndler_t)(const char *topicname, mqtt_qos_t qos);
 
 typedef struct message_handlers {
@@ -98,7 +104,12 @@ typedef struct mqtt_client {
     char                        *mqtt_host;
     char                        *mqtt_port;
     char                        *mqtt_ca;
+    char                        *mqtt_client_cert;
+    char                        *mqtt_private_key;
     void                        *mqtt_reconnect_data;
+    uint8_t                     mqtt_ssl;
+    uint8_t                     mqtt_ssl_sni_disable;
+    uint8_t                     mqtt_ssl_no_verify;
     uint8_t                     *mqtt_read_buf;
     uint8_t                     *mqtt_write_buf;
     uint16_t                    mqtt_keep_alive_interval;
@@ -151,7 +162,10 @@ MQTT_CLIENT_SET_STATEMENT(password, char*)
 MQTT_CLIENT_SET_STATEMENT(host, char*)
 MQTT_CLIENT_SET_STATEMENT(port, char*)
 MQTT_CLIENT_SET_STATEMENT(ca, char*)
+MQTT_CLIENT_SET_STATEMENT(client_cert, char*)
+MQTT_CLIENT_SET_STATEMENT(private_key, char*)
 MQTT_CLIENT_SET_STATEMENT(reconnect_data, void*)
+MQTT_CLIENT_SET_STATEMENT(ssl, uint8_t)
 MQTT_CLIENT_SET_STATEMENT(keep_alive_interval, uint16_t)
 MQTT_CLIENT_SET_STATEMENT(will_flag, uint32_t)
 MQTT_CLIENT_SET_STATEMENT(clean_session, uint32_t)
